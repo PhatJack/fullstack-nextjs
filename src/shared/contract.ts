@@ -6,6 +6,9 @@ const c = initContract();
 export const appContracts = c.router(
   {
     auth: authContract,
+  },
+  {
+    pathPrefix: "/api",
   }
 );
 
@@ -15,5 +18,4 @@ export const openApiDocument = generateOpenApi(appContracts, {
     title: "My API",
     version: "1.0.0",
   },
-	
 });
