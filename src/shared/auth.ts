@@ -32,6 +32,7 @@ export const authContract = c.router(
       responses: {
         200: z.object({ token: z.string() }),
         401: errorSchema,
+        400: errorSchema,
       },
       summary: "Login user",
       description: "Logs in a user and returns an access token",
@@ -41,7 +42,7 @@ export const authContract = c.router(
       path: "/auth/register",
       body: RegisterSchema,
       responses: {
-        200: z.string().describe("Success message"),
+        200: z.object({ message: z.string() }),
         400: errorSchema,
       },
       summary: "Register user",
