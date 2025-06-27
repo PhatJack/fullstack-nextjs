@@ -1,3 +1,4 @@
+//This file defines the database schema for the application using Drizzle ORM.
 import {
   pgTable,
   uuid,
@@ -10,6 +11,8 @@ import {
 export const users = pgTable(
   "users",
   {
+		//  id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`)
+		//The default uuid is only uuidv4
     id: uuid("id").primaryKey().defaultRandom(),
     email: varchar("email", { length: 255 }).unique().notNull(),
     name: varchar("name", { length: 255 }),
