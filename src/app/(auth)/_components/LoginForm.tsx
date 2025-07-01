@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import z from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,6 +15,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
+import { useAuthActions } from "@/service/auth";
+import { isErrorResponse, isSuccessResponse } from "@ts-rest/core";
+import { authContract } from "@/shared/auth";
 
 const loginFormSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -27,6 +31,7 @@ type LoginFormSchema = z.infer<typeof loginFormSchema>;
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const { loginMutation } = useAuthActions();
   const form = useForm<LoginFormSchema>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -36,8 +41,30 @@ const LoginForm = () => {
   });
 
   const onSubmit = (values: LoginFormSchema) => {
-    // Handle login logic here
-    console.log("Login submitted", values);
+    loginMutation.mutate(
+      {
+        body: {
+          email: values.email,
+          password: values.password,
+        },
+      },
+      {
+        onSuccess: (data) => {
+          if (isSuccessResponse(data, authContract.login)) {
+            console.log(data.body.token);
+          }
+          console.log(data);
+          toast.success("Login successful!");
+        },
+        onError: (error) => {
+          if (isErrorResponse(error, authContract.login)) {
+            toast.error(error.body.message || "Login failed");
+          } else {
+            toast.error("An unexpected error occurred");
+          }
+        },
+      }
+    );
   };
 
   return (
@@ -100,8 +127,8 @@ const LoginForm = () => {
           </form>
         </Form>
         <p className="text-sm text-center text-gray-600">
-          Don't have an account?{" "}
-          <Link href="/signup" className="text-blue-600 hover:underline">
+          Don&apos;t have an account?{" "}
+          <Link href="/register" className="text-blue-600 hover:underline">
             Sign up
           </Link>
         </p>
