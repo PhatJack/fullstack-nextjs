@@ -1,7 +1,8 @@
+"use client";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import z from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,6 +15,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { useAuthActions } from "@/service/auth";
+import { isErrorResponse, isSuccessResponse } from "@ts-rest/core";
+import { authContract } from "@/shared/auth";
+import { toast } from "sonner";
 
 const registerFormSchema = z
   .object({
@@ -37,7 +42,7 @@ type RegisterFormSchema = z.infer<typeof registerFormSchema>;
 const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+  const { registerMutation } = useAuthActions();
   const form = useForm<RegisterFormSchema>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -49,8 +54,32 @@ const RegisterForm = () => {
   });
 
   const onSubmit = (values: RegisterFormSchema) => {
-    // Handle registration logic here
-    console.log("Registration submitted", values);
+    registerMutation.mutate(
+      {
+        body: {
+          username: values.username,
+          email: values.email,
+          password: values.password,
+          confirmPassword: values.confirmPassword,
+        },
+      },
+      {
+        onSuccess: (data) => {
+          if (isSuccessResponse(data, authContract.register)) {
+            console.log(data.body.message);
+          }
+          console.log(data);
+          toast.success("Register successful!");
+        },
+        onError: (error) => {
+          if (isErrorResponse(error, authContract.register)) {
+            toast.error(error.body.message || "Register failed");
+          } else {
+            toast.error("An unexpected error occurred");
+          }
+        },
+      }
+    );
   };
 
   return (

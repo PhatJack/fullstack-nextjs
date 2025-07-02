@@ -13,6 +13,7 @@ export type LoginSchema = z.infer<typeof LoginSchema>;
 
 const RegisterSchema = z
   .object({
+    username: z.string(),
     email: z.string().email(),
     password: z.string().min(6),
     confirmPassword: z.string().min(6),
@@ -44,6 +45,7 @@ export const authContract = c.router(
       responses: {
         200: z.object({ message: z.string() }),
         400: errorSchema,
+				409: errorSchema,
       },
       summary: "Register user",
       description: "Registers a new user and returns an access token",
