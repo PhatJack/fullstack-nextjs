@@ -19,6 +19,7 @@ import { useAuthActions } from "@/service/auth";
 import { isErrorResponse, isSuccessResponse } from "@ts-rest/core";
 import { authContract } from "@/shared/auth";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const registerFormSchema = z
   .object({
@@ -40,6 +41,7 @@ const registerFormSchema = z
 type RegisterFormSchema = z.infer<typeof registerFormSchema>;
 
 const RegisterForm = () => {
+  const navigation = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { registerMutation } = useAuthActions();
@@ -70,6 +72,7 @@ const RegisterForm = () => {
           }
           console.log(data);
           toast.success("Register successful!");
+          navigation.push("/login");
         },
         onError: (error) => {
           if (isErrorResponse(error, authContract.register)) {
@@ -186,7 +189,13 @@ const RegisterForm = () => {
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700"
             >
-              Sign Up
+              {registerMutation.isPending ? (
+                <span className="flex items-center justify-center">
+                  <span className="animate-spin h-4 w-4 mr-2 border-t-2 border-red-600 rounded-full"></span>
+                </span>
+              ) : (
+                "Sign Up"
+              )}
             </Button>
           </form>
         </Form>

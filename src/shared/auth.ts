@@ -11,6 +11,35 @@ const LoginSchema = z.object({
 
 export type LoginSchema = z.infer<typeof LoginSchema>;
 
+const RefreshTokenSchema = z.object({
+  refreshToken: z.string(),
+});
+
+export type RefreshTokenSchema = z.infer<typeof RefreshTokenSchema>;
+
+const TokenPairSchema = z.object({
+  accessToken: z.string(),
+  refreshToken: z.string(),
+});
+
+const UserSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+  name: z.string().nullable(),
+  isAdmin: z.boolean(),
+});
+
+const LoginResponseSchema = z.object({
+  message: z.string(),
+  user: UserSchema,
+  tokens: TokenPairSchema,
+});
+
+const RefreshResponseSchema = z.object({
+  message: z.string(),
+  tokens: TokenPairSchema,
+});
+
 const RegisterSchema = z
   .object({
     username: z.string(),
@@ -31,12 +60,12 @@ export const authContract = c.router(
       path: "/auth/login",
       body: LoginSchema,
       responses: {
-        200: z.object({ token: z.string() }),
+        200: LoginResponseSchema,
         401: errorSchema,
         400: errorSchema,
       },
       summary: "Login user",
-      description: "Logs in a user and returns an access token",
+      description: "Logs in a user and returns access and refresh tokens",
     },
     register: {
       method: "POST",
@@ -45,10 +74,54 @@ export const authContract = c.router(
       responses: {
         200: z.object({ message: z.string() }),
         400: errorSchema,
-				409: errorSchema,
+        409: errorSchema,
       },
       summary: "Register user",
-      description: "Registers a new user and returns an access token",
+      description: "Registers a new user",
+    },
+    refresh: {
+      method: "POST",
+      path: "/auth/refresh",
+      body: RefreshTokenSchema,
+      responses: {
+        200: RefreshResponseSchema,
+        401: errorSchema,
+        400: errorSchema,
+      },
+      summary: "Refresh access token",
+      description: "Refreshes an access token using a refresh token",
+    },
+    logout: {
+      method: "POST",
+      path: "/auth/logout",
+      body: z.object({}),
+      headers: z.object({
+        authorization: z.string(),
+      }),
+      responses: {
+        200: z.object({ message: z.string() }),
+        401: errorSchema,
+        400: errorSchema,
+      },
+      summary: "Logout user",
+      description: "Logs out a user and invalidates their refresh token",
+    },
+    profile: {
+      method: "GET",
+      path: "/auth/profile",
+      headers: z.object({
+        authorization: z.string(),
+      }),
+      responses: {
+        200: z.object({
+          message: z.string(),
+          user: UserSchema,
+        }),
+        401: errorSchema,
+        403: errorSchema,
+      },
+      summary: "Get current user profile",
+      description: "Fetches the currently logged-in user's profile information",
     },
     getUser: {
       method: "GET",

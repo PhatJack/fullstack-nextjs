@@ -2,6 +2,7 @@ import { users } from "@/db/schema";
 import { db } from "@/drizzle/db";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { hashPassword } from "@/lib/password";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -21,9 +22,13 @@ export async function POST(req: Request) {
       { status: 409 }
     );
   }
+
+  // Hash the password before saving to database
+  const hashedPassword = await hashPassword(body.password);
+
   await db.insert(users).values({
     email: body.email,
-    password: body.password, // In a real application, make sure to hash the password
+    password: hashedPassword,
     name: body.username,
     isActive: true,
     isAdmin: false,

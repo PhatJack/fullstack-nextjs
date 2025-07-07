@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { useAuthActions } from "@/service/auth";
 import { isErrorResponse, isSuccessResponse } from "@ts-rest/core";
 import { authContract } from "@/shared/auth";
+import { useRouter } from "next/navigation";
 
 const loginFormSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -30,6 +31,7 @@ const loginFormSchema = z.object({
 type LoginFormSchema = z.infer<typeof loginFormSchema>;
 
 const LoginForm = () => {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const { loginMutation } = useAuthActions();
   const form = useForm<LoginFormSchema>({
@@ -51,10 +53,10 @@ const LoginForm = () => {
       {
         onSuccess: (data) => {
           if (isSuccessResponse(data, authContract.login)) {
-            console.log(data.body.token);
+            console.log(data.body.tokens.accessToken);
           }
-          console.log(data);
           toast.success("Login successful!");
+          router.push("/");
         },
         onError: (error) => {
           if (isErrorResponse(error, authContract.login)) {
