@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // This function can be marked `async` if using `await` inside
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const protectedRoutes = ["/"];
 
   const currentPath = request.nextUrl.pathname;
@@ -11,8 +11,9 @@ export function middleware(request: NextRequest) {
     (route) => currentPath === route || currentPath.startsWith(`${route}/`)
   );
   if (isProtected) {
-    // const token = await cookies().get("token")?.value;
-    if (true) {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+    if (!token) {
       return NextResponse.redirect(
         new URL("/login", request.nextUrl.origin).toString()
       );

@@ -52,9 +52,6 @@ const LoginForm = () => {
       },
       {
         onSuccess: (data) => {
-          if (isSuccessResponse(data, authContract.login)) {
-            console.log(data.body.tokens.accessToken);
-          }
           toast.success("Login successful!");
           router.push("/");
         },
@@ -124,7 +121,13 @@ const LoginForm = () => {
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700"
             >
-              Sign In
+              {loginMutation.isPending ? (
+                <span className="flex items-center justify-center">
+                  <span className="animate-spin h-4 w-4 mr-2 border-t-2 border-red-600 rounded-full"></span>
+                </span>
+              ) : (
+                "Sign In"
+              )}
             </Button>
           </form>
         </Form>
