@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
   );
   if (isProtected) {
     const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const token = cookieStore.get("todo-token")?.value;
     if (!token) {
       return NextResponse.redirect(
         new URL("/login", request.nextUrl.origin).toString()
@@ -27,10 +27,5 @@ export const config = {
     "/",
     "/login",
     "/register",
-    "/forgot-password",
-    "/reset-password",
-    "/privacy-policy",
-    "/terms-and-conditions",
-    "/google-callback",
   ],
 };

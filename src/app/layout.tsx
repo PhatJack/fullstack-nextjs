@@ -16,8 +16,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Todo App - Manage Your Tasks",
-  description: "A simple and efficient todo list application with authentication",
+  title: {
+    default: "Home",
+    template: "%s - Todo App",
+  },
+  description:
+    "A simple and efficient todo list application with authentication",
 };
 
 export default function RootLayout({
@@ -32,11 +36,9 @@ export default function RootLayout({
       >
         <Providers>
           <Navigation />
-          <main className="min-h-screen">
-            {children}
-          </main>
+          <main className="min-h-screen">{children}</main>
         </Providers>
-        <Toaster richColors position="top-center"/>
+        <Toaster richColors position="top-center" />
       </body>
     </html>
   );

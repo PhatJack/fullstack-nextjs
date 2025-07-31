@@ -62,11 +62,11 @@ export async function POST(req: Request) {
     })
     .where(eq(users.id, findEmail.id));
 
-  cookieStores.set("token", tokenPair.accessToken, {
+  cookieStores.set("todo-token", tokenPair.accessToken, {
     httpOnly: true,
     expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
   });
-  cookieStores.set("refreshToken", tokenPair.refreshToken, {
+  cookieStores.set("todo-refreshToken", tokenPair.refreshToken, {
     httpOnly: true,
     expires: new Date(Date.now() + 60 * 60 * 24 * 30 * 1000), // 30 days
   });

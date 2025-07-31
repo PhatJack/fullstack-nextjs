@@ -3,9 +3,11 @@ import { db } from "@/drizzle/db";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { generateTokenPair, verifyRefreshToken } from "@/lib/jwt";
+import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
   try {
+    const cookieStores = await cookies();
     const body = await req.json();
     const { refreshToken } = body;
 
@@ -30,7 +32,10 @@ export async function POST(req: Request) {
       where: eq(users.id, payload.userId),
     });
 
-    if (!user || user.refreshToken !== refreshToken) {
+    if (
+      !user ||
+      cookieStores.get("todo-refreshToken")?.value !== refreshToken
+    ) {
       return NextResponse.json(
         { code: 401, message: "Invalid refresh token" },
         { status: 401 }
@@ -44,12 +49,6 @@ export async function POST(req: Request) {
       name: user.name || undefined,
       isAdmin: user.isAdmin,
     });
-
-    // Update refresh token in database
-    await db
-      .update(users)
-      .set({ refreshToken: newTokenPair.refreshToken })
-      .where(eq(users.id, user.id));
 
     return NextResponse.json(
       {
